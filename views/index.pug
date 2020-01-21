@@ -1,0 +1,18 @@
+link(rel='stylesheet', href='my.css')
+p Count = #{list.length} films
+each genre in genres
+    a(href='/?genre='+genre)
+      p #{genre}
+each val in list
+    div(class='item')
+        p(class='title') #{val.title} #{val.year} #{val.rating} #{val.genres}
+        img(class='poster' src=val.poster_big)
+        div(class='link')
+            each link in val.items
+                span(class='link-file') #{link.file}
+                span(class='link-size_bytes') --- #{link.size_bytes/1000000000} GB
+                form(action = "/", method = "POST")
+                    div(class='download-form')
+                        label(for = "torrent_magnet") torrent_magnet:
+                        input(name = "torrent_magnet" readonly value=link.torrent_magnet)
+                    button(type = "submit") Download request

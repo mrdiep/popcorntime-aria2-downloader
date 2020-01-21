@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="initial-scale=1">
+	<title>Film Expolorer</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+	<div id="app">
+
+		<div style="margin-left: 5px;">
+			<div style="padding: 5px;">
+				<button class="btn btn-info" v-on:click="filter('')">All</button>
+				<button class="btn btn-info" style="margin:5px;" v-on:click="filter(genre)" style="margin-right:10px;"
+					v-for="genre in genres">{{genre}}</button>
+			</div>
+
+		</div>
+
+
+		<span style="margin: 15px" class="badge badge-danger">Result: {{films.length}} films</span>
+
+		<ul class="list-group">
+			<div v-for="item in films">
+
+				<li class="list-group-item">
+
+					<p class="card-text"><b>{{item.title.toUpperCase()}}</b>
+
+						<span style="margin-left: 10px;" class="badge badge-info">Rating: {{item.rating}}</span>
+						<span style="margin-left: 10px;" class="badge badge-success">Year: {{item.year}}</span>
+
+					</p>
+					<div style="display: flex;">
+
+						<div style="margin-left: 10px;">
+							<img style="width: 120px;height: 175px;" v-bind:src="item.poster_big" alt="Card image cap">
+						</div>
+
+
+						<div class="body">
+
+							<a href="#" class="badge badge-primary" v-on:click="filter(genre)"
+								style="margin-right:10px;" v-for="genre in item.genres">{{genre}}</a>
+
+							<div v-for="(link, index) in item.items">
+								<button type="button" v-on:click="download(link.torrent_magnet)"
+									style="text-align: left;" class="btn btn-link">{{index + 1}}) {{link.file}}.
+									<span style="margin-left: 10px;" class="badge badge-danger">Size:
+										{{(link.size_bytes/1000000000).toFixed(2)}}GB</span>
+								</button>
+							</div>
+						</div>
+					</div>
+
+				</li>
+			</div>
+		</ul>
+	</div>
+</body>
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			films: [],
+			genres: [],
+		},
+		mounted() {
+			axios.get('/data').then((data) => {
+				this.films = data.data.list;
+				this.genres = data.data.genres;
+			});
+		},
+		methods: {
+			download: function (torrent_magnet) {
+				axios.post('/', { torrent_magnet: torrent_magnet }).then((data) =>
+					alert(data.data.message));
+			},
+			filter: function (genre) {
+				axios.get('/data?genre=' + genre).then((data) => {
+					this.films = data.data.list;
+					this.genres = data.data.genres;
+				});
+			}
+		}
+	});
+</script>
+
+</html>
